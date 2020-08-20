@@ -27,11 +27,11 @@ sudo apt-get install gcc
 It is necessary to configure your UART port first to be able to send frames.
 
 ### Raspberry Pi4
-As Adapter API is using '''Terminal /dev/ttyAMA0 ''' add these two lines at the end of your '''config.txt''' file: 
-'''
+As Adapter API is using ```Terminal /dev/ttyAMA0 ``` add these two lines at the end of your ```config.txt``` file: 
+```
 enable_uart=1
 dtoverlay=miniuart-bt
-'''
+```
 
 Check [official RPi documentation](https://www.raspberrypi.org/documentation/configuration/uart.md)
 for details and on how to configure UART ports.
@@ -39,12 +39,12 @@ for details and on how to configure UART ports.
 ### NVIDIA Jetson Nano
 On NVIDIA Jetson Nano (assuming Jetpack SDK is installed) two steps are required:
 1. execute following three commands:
-''' Terminal
+``` Terminal
 systemctl stop nvgetty 
 systemctl disable nvgetty 
 udevadm trigger
-'''
-2. Add your user to gruou '''dialout'''. Remember to logout and login for changes to take effect.
+```
+2. Add your user to group ```dialout```. Remember to logout and login for changes to take effect.
 
 Credits:
 - [post on www.jetsonhacks.com](https://www.jetsonhacks.com/2019/10/10/jetson-nano-uart/)
