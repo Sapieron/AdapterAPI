@@ -113,23 +113,9 @@ class AdapterAPI:
         self._testedPort.write(frame)
         #TODO check if received NOK or OK
 
-    def CMD_DISPENSER_Rotate(self,
-                             FoodA,
-                             FoodB):
-        """@brief Rotates food dispensers by a set number or rotations\n
-           @param FoodA - number or rotations to be done by FoodA dispenser.
-           Must be in range of -9999 to 9999\n
-           @param FoodB - number or rotations to be done by FoodB dispenser.
-           Must be in range of -9999 to 9999"""
-        frame = self._commandFactory(self).BuildRotateFoodDispenser(FoodA, FoodB)
-        self._testedPort.write(frame)
-
-    def CMD_PUMP_RotateForMs(self,
-                             time):
-        """@brief Rotates pump for desired time in [ms]\n
-           @param time - time in [ms] for which pump will be on.
-           Must be in range of -9999 to 9999"""
-        frame = self._commandFactory(self).BuildRotateWaterPump(time)
+    def CMD_DISPENSER_FeedOnce(self):
+        """@brief Feeds exactly one portion"""
+        frame = self._commandFactory(self).BuildFeedFoodOnce()
         self._testedPort.write(frame)
 
     def CMD_PUMP_FeedWater(self,
@@ -140,6 +126,11 @@ class AdapterAPI:
         frame = self._commandFactory(self).BuildFeedWater(mililiters)
         self._testedPort.write(frame)
 
+    class _targettedDevice(Enum):
+        MotorController = 0x4D
+        FoodController  = 0x46
+        WaterController = 0x57
+        General  = 0x47
 
     class _commandTags(Enum):
         SayHelloWorld            = 0x30
@@ -148,9 +139,8 @@ class AdapterAPI:
         SetCurrentPositionAsZero = 0x33
         ForceStopMovement        = 0x34
         ForceStopAll             = 0x35
-        RotateFoodDispenser      = 0x36
-        RotateWaterPump          = 0x37
-        FeedWater                = 0x38
+        FeedOnce                 = 0x36
+        FeedWater                = 0x37
 
     class _commandFactory:
         def __init__(self, master):
@@ -158,7 +148,8 @@ class AdapterAPI:
 
         def BuildSayHelloWorld(self):
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.SayHelloWorld.value
+            frame[0] = self._master._targettedDevice.General.value
+            frame[1] = self._master._commandTags.SayHelloWorld.value
             return bytes(frame)
 
         def BuildMoveToCoordinate(self,
@@ -168,42 +159,43 @@ class AdapterAPI:
             X = int(X)
             Y = int(Y)
             Z = int(Z)
-            self._CheckIfValueFits(X, Y, Z)
+            self.__CheckIfValueFits(4, True, X, Y, Z)
 
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.MoveToCoordinate.value
-            frame[1] = ord('X')
+            frame[0] = self._master._targettedDevice.MotorController.value
+            frame[1] = self._master._commandTags.MoveToCoordinate.value
+            frame[2] = ord('X')
             if int(X < 0 ):
-                frame[2] = ord("-")
+                frame[3] = ord("-")
             else:
-                frame[2] = ord("+")
+                frame[3] = ord("+")
             X = abs(X)
-            frame[3] = int(X / 1000) + 0x30
-            frame[4] = int((X % 1000) / 100) + 0x30
-            frame[5] = int((X % 100) / 10) + 0x30
-            frame[6] = X % 10 + 0x30
+            frame[4] = int(X / 1000) + 0x30
+            frame[5] = int((X % 1000) / 100) + 0x30
+            frame[6] = int((X % 100) / 10) + 0x30
+            frame[7] = X % 10 + 0x30
 
-            frame[7] = ord('Y')
+            frame[8] = ord('Y')
             if int(Y < 0 ):
-                frame[8] = ord("-")
+                frame[9] = ord("-")
             else:
-                frame[8] = ord("+")
+                frame[9] = ord("+")
             Y = abs(Y)
-            frame[9] = int(Y / 1000) + 0x30
-            frame[10] = int((Y % 1000) / 100) + 0x30
-            frame[11] = int((Y % 100) / 10) + 0x30
-            frame[12] = Y % 10 + 0x30
+            frame[10] = int(Y / 1000) + 0x30
+            frame[11] = int((Y % 1000) / 100) + 0x30
+            frame[12] = int((Y % 100) / 10) + 0x30
+            frame[13] = Y % 10 + 0x30
 
-            frame[13] = ord('Z')
+            frame[14] = ord('Z')
             if int(Z < 0 ):
-                frame[14] = ord("-")
+                frame[15] = ord("-")
             else:
-                frame[14] = ord("+")
+                frame[15] = ord("+")
             Z = abs(Z)
-            frame[15] = int(Z / 1000) + 0x30
-            frame[16] = int((Z % 1000) / 100) + 0x30
-            frame[17] = int((Z % 100) / 10) + 0x30
-            frame[18] = Z % 10 + 0x30
+            frame[16] = int(Z / 1000) + 0x30
+            frame[17] = int((Z % 1000) / 100) + 0x30
+            frame[18] = int((Z % 100) / 10) + 0x30
+            frame[19] = Z % 10 + 0x30
 
             return bytes(frame)
 
@@ -214,139 +206,92 @@ class AdapterAPI:
             X = int(X)
             Y = int(Y)
             Z = int(Z)
-            self._CheckIfValueFits(X, Y, Z)
+            self.__CheckIfValueFits(4, True, X, Y, Z)
 
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.RotateStepper.value
-            frame[1] = ord('X')
+            frame[0] = self._master._targettedDevice.MotorController.value
+            frame[1] = self._master._commandTags.RotateStepper.value
+            frame[2] = ord('X')
             if int(X < 0 ):
-                frame[2] = ord("-")
+                frame[3] = ord("-")
             else:
-                frame[2] = ord("+")
+                frame[3] = ord("+")
             X = abs(X)
-            frame[3] = int(X / 1000) + 0x30
-            frame[4] = int((X % 1000) / 100) + 0x30
-            frame[5] = int((X % 100) / 10) + 0x30
-            frame[6] = X % 10 + 0x30
+            frame[4] = int(X / 1000) + 0x30
+            frame[5] = int((X % 1000) / 100) + 0x30
+            frame[6] = int((X % 100) / 10) + 0x30
+            frame[7] = X % 10 + 0x30
 
-            frame[7] = ord('Y')
+            frame[8] = ord('Y')
             if int(Y < 0 ):
-                frame[8] = ord("-")
+                frame[9] = ord("-")
             else:
-                frame[8] = ord("+")
+                frame[9] = ord("+")
             Y = abs(Y)
-            frame[9] = int(Y / 1000) + 0x30
-            frame[10] = int((Y % 1000) / 100) + 0x30
-            frame[11] = int((Y % 100) / 10) + 0x30
-            frame[12] = Y % 10 + 0x30
+            frame[10] = int(Y / 1000) + 0x30
+            frame[11] = int((Y % 1000) / 100) + 0x30
+            frame[12] = int((Y % 100) / 10) + 0x30
+            frame[13] = Y % 10 + 0x30
 
-            frame[13] = ord('Z')
+            frame[14] = ord('Z')
             if int(Z < 0 ):
-                frame[14] = ord("-")
+                frame[15] = ord("-")
             else:
-                frame[14] = ord("+")
+                frame[15] = ord("+")
             Z = abs(Z)
-            frame[15] = int(Z / 1000) + 0x30
-            frame[16] = int((Z % 1000) / 100) + 0x30
-            frame[17] = int((Z % 100) / 10) + 0x30
-            frame[18] = Z % 10 + 0x30
+            frame[16] = int(Z / 1000) + 0x30
+            frame[17] = int((Z % 1000) / 100) + 0x30
+            frame[18] = int((Z % 100) / 10) + 0x30
+            frame[19] = Z % 10 + 0x30
 
             return bytes(frame)
 
         def BuildSetCurrentPositionAsZero(self):
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.SetCurrentPositionAsZero.value
+            frame[0] = self._master._targettedDevice.MotorController.value
+            frame[1] = self._master._commandTags.SetCurrentPositionAsZero.value
             return bytes(frame)
 
         def BuildForceStopMovement(self):
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.ForceStopMovement.value
+            frame[0] = self._master._targettedDevice.MotorController.value
+            frame[1] = self._master._commandTags.ForceStopMovement.value
             return bytes(frame)
 
         def BuildForceStopAll(self):
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.ForceStopAll.value
+            frame[0] = self._master._targettedDevice.General.value
+            frame[1] = self._master._commandTags.ForceStopAll.value
             return bytes(frame)
 
-        def BuildRotateFoodDispenser(self,
-                                     FoodA,
-                                     FoodB):
-            FoodA = int(FoodA)
-            FoodB = int(FoodB)
-            self._CheckIfValueFits(FoodA, FoodB)
-
+        def BuildFeedFoodOnce(self):
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.RotateFoodDispenser.value
-            frame[1] = ord("A")
-            if int(FoodA < 0 ):
-                frame[2] = ord("-")
-            else:
-                frame[2] = ord("+")
-            FoodA = abs(FoodA)
-            frame[3] = int(FoodA / 1000) + 0x30
-            frame[4] = int((FoodA % 1000) / 100) + 0x30
-            frame[5] = int((FoodA % 100) / 10) + 0x30
-            frame[6] = FoodA % 10 + 0x30
-
-            frame[7]  = ord("B")
-            if int(FoodB < 0 ):
-                frame[8] = ord("-")
-            else:
-                frame[8] = ord("+")
-            FoodB = abs(FoodB)
-            frame[9]  = int(FoodB / 1000) + 0x30
-            frame[10] = int((FoodB % 1000) / 100) + 0x30
-            frame[11] = int((FoodB % 100) / 10) + 0x30
-            frame[12] = FoodB % 10 + 0x30
-
-            return bytes(frame)
-
-        def BuildRotateWaterPump(self,
-                                 time):
-            frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.RotateWaterPump.value
-
-            self._CheckIfValueFits(time)
-
-            frame[1] = ord("W")
-            if int(time < 0 ):
-                raise ValueError("Time of rotation cannot be a negative value")
-            else:
-                frame[2] = ord("+")
-
-            time = abs(time)
-            frame[3] = int(time / 1000) + 0x30
-            frame[4] = int((time % 1000) / 100) + 0x30
-            frame[5] = int((time % 100) / 10) + 0x30
-            frame[6] = time % 10 + 0x30
-
+            frame[0] = self._master._targettedDevice.FoodController.value
+            frame[1] = self._master._commandTags.RotateFoodDispenser.value
             return bytes(frame)
 
         def BuildFeedWater(self,
                            mililiters):
+            self.__CheckIfValueFits(2, False, mililiters)
+
             frame    = self._master._defaultFrame[:]
-            frame[0] = self._master._commandTags.FeedWater.value
-
-            self._CheckIfValueFits(mililiters)
-
-            frame[1] = ord("W")
-            if int(mililiters < 0 ):
-                raise ValueError("Water amount to be pumped cannot be a negative value")
-            else:
-                frame[2] = ord("+")
-
-            mililiters = abs(mililiters)
-            frame[3] = int(mililiters / 1000) + 0x30
-            frame[4] = int((mililiters % 1000) / 100) + 0x30
-            frame[5] = int((mililiters % 100) / 10) + 0x30
-            frame[6] = mililiters % 10 + 0x30
+            frame[0] = self._master._targettedDevice.WaterController.value
+            frame[1] = self._master._commandTags.FeedWater.value
+            frame[2] = int((mililiters % 100) / 10) + 0x30
+            frame[3] = mililiters % 10 + 0x30
 
             return bytes(frame)
 
-        def _CheckIfValueFits(self,
+        def __CheckIfValueFits(self,
+                               decimalPlaces,
+                               canBeNegative,
                               *argv):
-            lowerBorderValue  = -9999
-            higherBorderValue = 9999
+            if canBeNegative == True:
+                lowerBorderValue  = -(10**decimalPlaces - 1)
+            else:
+                lowerBorderValue = 0
+
+            higherBorderValue = 10**decimalPlaces - 1
             for arg in argv:
                 if arg < lowerBorderValue or arg > higherBorderValue:
                     raise ValueError(f"Value must be in range {lowerBorderValue} to {higherBorderValue}")

@@ -28,8 +28,8 @@ AdapterHandler.CMD_STEPPER_ForceStopMovement()
 #Stops all movement - of stepper motors, servos and water pump
 AdapterHandler.CMD_ForceStopAll()
 
-#Rotates dispenser FoodA by 10 rotations and dispenser FoodB by 20 rotations
-AdapterHandler.CMD_DISPENSER_Rotate(10, 20)
+#Make food dispenser feed one portion of food
+AdapterHandler.CMD_DISPENSER_FeedOnce()
 
 #Rotates pump for 20ms
 AdapterHandler.CMD_PUMP_RotateForMs(20)
