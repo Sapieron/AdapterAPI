@@ -31,8 +31,5 @@ AdapterHandler.CMD_ForceStopAll()
 #Make food dispenser feed one portion of food
 AdapterHandler.CMD_DISPENSER_FeedOnce()
 
-#Rotates pump for 20ms
-AdapterHandler.CMD_PUMP_RotateForMs(20)
-
 #Feeds 15ml of water
 AdapterHandler.CMD_PUMP_FeedWater(15)

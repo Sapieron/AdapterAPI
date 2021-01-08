@@ -267,7 +267,7 @@ class AdapterAPI:
         def BuildFeedFoodOnce(self):
             frame    = self._master._defaultFrame[:]
             frame[0] = self._master._targettedDevice.FoodController.value
-            frame[1] = self._master._commandTags.RotateFoodDispenser.value
+            frame[1] = self._master._commandTags.FeedOnce.value
             return bytes(frame)
 
         def BuildFeedWater(self,

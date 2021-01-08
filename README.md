@@ -40,10 +40,9 @@ AdapterAPI class has following methods:
 - ```CMD_STEPPER_SetCurrentPositionAsZero()``` - Sets current position of stepper motors to be zeroed. Useful after power-up.
 - ```CMD_STEPPER_ForceStopMovement()``` - Forces to stop every movement of steppers. Returns true if succedded, False if not succeeded.
 ### Pump-specific methods
-- ```CMD_PUMP_RotateForMs(time)``` - Rotates pump for desired time in [ms]. Parameter must be in range of -9999 to 9999.
-- ```CMD_PUMP_FeedWater(mililiters)``` - Turns on water pump to pump desired amount of water in [ml]. Parameter must be in range of -9999 to 9999.
+- ```CMD_PUMP_FeedWater(mililiters)``` - Turns on water pump to pump desired amount of water in [ml]. Parameter must be in range of 0 to 99.
 ### Food-dispenser-specific methods
-- ```CMD_DISPENSER_Rotate(FoodA, FoodB)``` - Rotates food dispensers by a set number or rotations.  Parameters must be in range of -9999 to 9999.
+- ```CMD_DISPENSER_FeedOnce()``` - Feeds one portion of food.
 
 ## Example usage
 
