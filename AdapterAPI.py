@@ -14,6 +14,7 @@ from enum import Enum
 
 import colored_traceback.auto
 import serial
+import time
 
 ################################################################################
 #                                Code
@@ -116,6 +117,8 @@ class AdapterAPI:
     def CMD_DISPENSER_FeedOnce(self):
         """@brief Feeds exactly one portion"""
         frame = self._commandFactory(self).BuildFeedFoodOnce()
+        self._testedPort.write(frame)
+        time.sleep(0.100)
         self._testedPort.write(frame)
 
     def CMD_PUMP_FeedWater(self,
